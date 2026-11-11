@@ -134,7 +134,7 @@ def doc_command_supported(command, runner=None):
     call = runner or run_text
     try:
         call(["doc", command, "--schema"])
-    except WecomCliError:
+    except (WecomCliError, OSError):
         return False
     return True
 
@@ -143,7 +143,7 @@ def service_available(service, runner=None):
     call = runner or run_text
     try:
         call([service, "--help"])
-    except WecomCliError:
+    except (WecomCliError, OSError):
         return False
     return True
 
