@@ -35,11 +35,15 @@ wecom-cli auth show --status
 
 Complete the official authentication flow in the same user environment that runs the Python process.
 
-## The enterprise does not support an API category
+## A WeCom method or document denies access
 
-Some enterprises reject `contact`, `message`, `calendar`, or `meeting` permissions even after authentication. Treat the returned permission error as final for that enterprise configuration. Repeating the same request does not expand access.
+CLI authorization status reports the credential state. Check both the business method and the specific document. For `851008` (for example, `partial no authorization`), use the response details to identify the missing business authorization, such as document search and content access. If the response says `forbidden for current apikey`, the credential lacks access to the method that returned the error. For document requests returning `851003 no authority`, check the calling account or bot's access to the document and the enterprise's visibility settings. Enterprise-mode bots have their own document permissions. See the [WeCom permission discussion](https://github.com/WecomTeam/wecom-cli/issues/64).
 
-Use local contacts for identity lookup and the repository's supported document or sheet operations where appropriate.
+After an explicit permission denial, stop retries under the same authorization. If the user chooses the desktop client, use the signed-in account's existing access. Verify that the available Computer Use tools can interact with the document before writing, then reopen the changed target to verify saved data.
+
+## CLI licensing and service charges
+
+The official CLI software is [MIT-licensed](https://github.com/WecomTeam/wecom-cli/blob/main/LICENSE). The public [CLI documentation](https://github.com/WecomTeam/wecom-cli) and [SmartSheet references](https://github.com/WecomTeam/wecom-cli/tree/main/skills/wecomcli-smartsheet) do not list per-call pricing for ordinary sheet, field, and record operations. Verify applicable charges against the organization's current WeCom plan or agreement. [Optional advanced document features](https://open.work.weixin.qq.com/help2/pc/15422) and [service-provider API access licenses](https://hiflow.tencent.com/document/applications/qiweishoufeishuoming/) have separate terms. A permission error indicates an access issue and does not establish a charge.
 
 ## A legacy or current command is rejected
 
