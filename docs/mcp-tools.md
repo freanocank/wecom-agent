@@ -1,11 +1,11 @@
 ---
 title: MCP Tools
-description: Read-only local tools and confirmation-gated online tools exposed by server.py.
+description: Local read and export tools and confirmation-gated online tools exposed by server.py.
 ---
 
 # MCP Tools
 
-`server.py` exposes the repository's local and online operations through a thin MCP facade. The MCP layer does not replace the underlying Python and CLI commands; it normalizes inputs and returns text or JSON suitable for an agent client.
+`server.py` exposes the repository's local and online operations through a thin MCP facade. Local tools read the local snapshot or cache. Online document and table tools invoke the official CLI over the network.
 
 ## Local read tools
 
@@ -47,11 +47,11 @@ Fallback results may be stale compared with the online document.
 | `wecom_smartpage_import` | Import a local Markdown file as a smart page on CLI `1.1+` | Required |
 | `wecom_sheet_create` | Create an online sheet | Required |
 | `wecom_sheet_info` | Read sheet structure | Not required |
-| `wecom_sheet_get_range` | Read a cell range on CLI `1.1+` | Not required |
+| `wecom_sheet_get_range` | Read a cell range in `default` mode on CLI `1.1+`. The wrapper omits the range in `csv` mode. | Not required |
 | `wecom_sheet_add_sub` | Add a subsheet | Required |
 | `wecom_sheet_delete_sub` | Delete a subsheet | Required |
 | `wecom_sheet_append_row` | Append one row | Required |
-| `wecom_sheet_update_range` | Update a rectangular cell range | Required |
+| `wecom_sheet_update_range` | Update a rectangular cell range using zero-based row and column coordinates | Required |
 
 ## Smart sheets
 
@@ -65,17 +65,17 @@ These MCP tools route to the legacy flat commands or the current nested `smartsh
 | `wecom_smartsheet_update_sheet` | Rename a child sheet | Required |
 | `wecom_smartsheet_delete_sheet` | Delete a child sheet | Required |
 | `wecom_smartsheet_fields` | Read fields | Not required |
-| `wecom_smartsheet_records` | Read records on CLI `1.1+` | Not required |
+| `wecom_smartsheet_records` | Read records on CLI `1.1+` with cursor or offset pagination | Not required |
 | `wecom_smartsheet_add_fields` | Add fields | Required |
 | `wecom_smartsheet_update_fields` | Update fields | Required |
 | `wecom_smartsheet_delete_fields` | Delete fields | Required |
 | `wecom_smartsheet_add_records` | Add records | Required |
-| `wecom_smartsheet_update_records` | Update known records | Required |
+| `wecom_smartsheet_update_records` | Update known records by `record_id` | Required |
 | `wecom_smartsheet_delete_records` | Delete known records | Required |
 
 ## Confirmation behavior
 
-Every online write tool accepts `confirmed`. The facade returns a confirmation request when the value is false and calls the underlying module only after it is true. Confirm the target, content, and impact in the current interaction; do not reuse stale approval for a different write.
+Every online write tool accepts `confirmed`. The wrapper blocks the write before invoking the CLI unless `confirmed` is true. Verify that the user's authorization covers the exact target, content, and scope. Reuse explicit authorization for that write and verify the affected data afterward.
 
 ## Run the server
 
@@ -83,7 +83,7 @@ Every online write tool accepts `confirmed`. The facade returns a confirmation r
 python3 server.py
 ```
 
-On macOS, `bash setup.sh` creates an isolated `.venv` from pinned dependencies and registers the server when its supported client command is present. Direct module calls remain available for testing and automation.
+If the Codex session already exposes `wecom` tools, call them directly. For a new client connection, configure the stdio server with the dependency environment's Python and the absolute path to `server.py`. On macOS, `bash setup.sh` prepares an isolated `.venv` and can register it with Claude Code. Direct module calls are available for testing and automation.
 
 ## JSON inputs
 

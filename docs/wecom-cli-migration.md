@@ -5,7 +5,7 @@ description: Understand the breaking command-model change and the repository's v
 
 # `wecom-cli` 1.1+ Migration
 
-The official CLI changed its command and authentication model in `1.1.0`. The latest release verified during this maintenance pass was `1.2.0` on 2026-09-01. See the official [WecomTeam repository](https://github.com/WecomTeam/wecom-cli) and [npm package](https://www.npmjs.com/package/@wecom/cli) for newer releases.
+The official CLI changed its command and authentication model in `1.1.0`. The original migration was checked with `1.2.0`. For current releases and command references, see the official [changelog](https://github.com/WecomTeam/wecom-cli/blob/main/CHANGELOG.md), [skills index](https://github.com/WecomTeam/wecom-cli/blob/main/docs/skills.md), and [npm package](https://www.npmjs.com/package/@wecom/cli).
 
 ## Breaking changes
 
@@ -41,15 +41,16 @@ The Python layer detects the installed semantic version before choosing a comman
 
 Failing closed prevents an old payload from reaching a newly named write endpoint. `python3 -m online.selfcheck` reports the detected generation, authorization state, available services, and wrapper coverage.
 
-## Upgrade safely
+## Check the installed CLI
 
 ```bash
-npm install -g @wecom/cli
 wecom-cli --version
 wecom-cli auth show --status
 python3 -m online.selfcheck
 ```
 
-The repository never upgrades the global CLI automatically. On 2026-09-01 the local CLI was explicitly upgraded from `0.1.9` to `1.2.0`; authorization remained valid. The Python/MCP wrappers now cover current normal documents, standard sheets, smart-page create/import, and smart-sheet sheet/field/record operations.
+Run the Python check from the skill root. Use `auth init` only when the CLI is needed and shows `unauthorized`. For `0.1.x`, use the legacy authorization flag above. Service help and schemas are determined by the installed CLI and server discovery. Authorization status alone does not establish access to a specific document.
 
-No online write should be used as a version probe. Inspect `--help`, `--doc`, or `--schema`, then test command construction locally; perform a real write only after confirming its target, content, and impact.
+To install or upgrade the CLI when requested, use `npm install -g @wecom/cli`, then repeat the checks. Starting with `1.3.0`, CLI file reads and writes are scoped to its working directory and the system temporary directory. Downloads default to the working directory, and `--output-dir` applies to file-producing responses. Validate the upload and download paths used by the wrapper, including smart-page Markdown import, before relying on these operations after an upgrade.
+
+Use `--help`, `--doc`, or `--schema` and local command construction to check compatibility. Use an authorized, narrowly scoped read to check document access.
