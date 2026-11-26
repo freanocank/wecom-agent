@@ -56,7 +56,8 @@ class OnlineWecomCliTests(unittest.TestCase):
         wecom_cli = load_module("online.wecom_cli")
         calls = []
 
-        def fake_run(argv, capture_output, text, timeout, check):
+        def fake_run(argv, capture_output, encoding, timeout, check):
+            self.assertEqual(encoding, "utf-8")
             calls.append(argv)
             return subprocess.CompletedProcess(argv, 0, stdout='{"errcode":0}', stderr="")
 
@@ -73,7 +74,7 @@ class OnlineWecomCliTests(unittest.TestCase):
     def test_run_json_raises_structured_error_on_cli_failure(self):
         wecom_cli = load_module("online.wecom_cli")
 
-        def fake_run(argv, capture_output, text, timeout, check):
+        def fake_run(argv, capture_output, encoding, timeout, check):
             return subprocess.CompletedProcess(argv, 2, stdout="", stderr="unsupported")
 
         with self.assertRaises(wecom_cli.WecomCliError) as ctx:
@@ -85,7 +86,7 @@ class OnlineWecomCliTests(unittest.TestCase):
     def test_run_json_prefers_current_structured_error(self):
         wecom_cli = load_module("online.wecom_cli")
 
-        def fake_run(argv, capture_output, text, timeout, check):
+        def fake_run(argv, capture_output, encoding, timeout, check):
             return subprocess.CompletedProcess(
                 argv,
                 1,

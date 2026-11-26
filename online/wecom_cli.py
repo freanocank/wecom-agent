@@ -42,7 +42,7 @@ def run_json(args, payload=None, timeout=60, cli="wecom-cli", run=subprocess.run
     if payload is not None:
         argv.extend(["--json", json.dumps(payload, ensure_ascii=False, separators=(",", ":"))])
 
-    completed = run(argv, capture_output=True, text=True, timeout=timeout, check=False)
+    completed = run(argv, capture_output=True, encoding="utf-8", timeout=timeout, check=False)
     if completed.returncode != 0:
         raise WecomCliError(argv, completed.returncode, completed.stdout, completed.stderr)
 
@@ -57,7 +57,7 @@ def run_json(args, payload=None, timeout=60, cli="wecom-cli", run=subprocess.run
 
 def run_text(args, timeout=30, cli="wecom-cli", run=subprocess.run):
     argv = [cli] + list(args)
-    completed = run(argv, capture_output=True, text=True, timeout=timeout, check=False)
+    completed = run(argv, capture_output=True, encoding="utf-8", timeout=timeout, check=False)
     if completed.returncode != 0:
         raise WecomCliError(argv, completed.returncode, completed.stdout, completed.stderr)
     return completed.stdout.strip()
